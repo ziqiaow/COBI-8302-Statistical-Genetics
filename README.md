@@ -12,7 +12,7 @@ This is the tutorial for Session 19: building polygenic risk scores for course C
   - [Calculation of PRS](#calculation-of-prs)
   - [Visualize the PRS](#visualize-the-prs)
 - [Train PRS models using GWAS summary statistics](#train-prs-models-using-gwas-summary-statistics)
-  - [Next prepare the summary statistics for PRScs](#next-prepare-the-summary-statistics-for-prscs)
+  - [Prepare the summary statistics for PRScs](#prepare-the-summary-statistics-for-prscs)
   - [Calculate the effect size of GWAS for case-control study](#calculate-the-effect-size-of-gwas-for-case-control-study)
   - [Run PRScs](#run-prscs)
 
@@ -147,7 +147,7 @@ hist(prs_bmi$SCORE1_SUM, col = "blue", breaks = 20, xlab = "PRS value", main = "
 First, download GWAS summary statistics from [GWASCatalog](https://www.ebi.ac.uk/gwas/). We use the example dataset for ADHD (available for download [here](https://github.com/ziqiaow/PRS-tutorial)).
 Second, install PRScs into your computer or computing server [Instructions](https://github.com/getian107/PRScs).
 
-## Next prepare the summary statistics for PRScs
+## Prepare the summary statistics for PRScs
 ```{R,eval = F}
 library(data.table)
 adhd = fread("ADHD2022_iPSYCH_deCODE_PGC.meta.gz")
