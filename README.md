@@ -182,9 +182,6 @@ Finally, use the same steps in previous PLINK code to calculate PRS for ADHD.
 
 Note that for tuning parameters, you will need to split the target data into validation set and then assess the performance of PRS in testing set (example, 1:1 validation/testing or 1:2 validation/testing). Here, we directly used the default parameters provided by PRScs.
 
-
-For the final project, we will use a different set of simulated data that contain phenotype outcomes <https://dataverse.harvard.edu/dataset.xhtml?persistentId=doi:10.7910/DVN/COXHAP&version=5.2> to evaluate PRS.
-
 # References
 
 Choi, S.W., Mak, T.SH. & O’Reilly, P.F. Tutorial: a guide to performing polygenic risk score analyses. Nat Protoc 15, 2759–2772 (2020). https://doi.org/10.1038/s41596-020-0353-1
