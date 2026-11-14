@@ -1,6 +1,23 @@
 # COBI-8302-Statistical-Genetics
 This is the tutorial for Session 19: building polygenic risk scores for course COBI 8302 in Fall 2026 at the University of Virginia.
 
+## Table of Contents
+- [Calculate PRS using pre-trained weights](#calculate-prs-using-pre-trained-weights)
+  - [Download Summary Statistics from PGSCatalog](#download-summary-statistics-from-pgscatalog)
+  - [Data cleaning](#data-cleaning)
+    - [Ambiguous SNPs](#ambiguous-snps)
+    - [Standard GWAS QC (will do this step when calculating the PRS)](#standard-gwas-qc-will-do-this-step-when-calculating-the-prs)
+    - [Mismatching SNPs and/or Duplicate SNPs](#mismatching-snps-andor-duplicate-snps)
+    - [Save the score file for PLINK](#save-the-score-file-for-plink)
+  - [Calculation of PRS](#calculation-of-prs)
+  - [Visualize the PRS](#visualize-the-prs)
+- [Train PRS models using GWAS summary statistics](#train-prs-models-using-gwas-summary-statistics)
+  - [Next prepare the summary statistics for PRScs](#next-prepare-the-summary-statistics-for-prscs)
+  - [Calculate the effect size of GWAS for case-control study](#calculate-the-effect-size-of-gwas-for-case-control-study)
+  - [Run PRScs](#run-prscs)
+
+---
+
 # Calculate PRS using pre-trained weights
 
 ## Download Summary Statistics from PGSCatalog
