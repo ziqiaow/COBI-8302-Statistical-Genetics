@@ -30,6 +30,7 @@ Pay attention to the Genome build (HG19 or HG38) of your own data. As an example
 
 
 ## Data cleaning
+
 ### Ambiguous SNPs
 Here, we use the HGDP project data. Our data version is HG38. If the base and target data were generated using different genotyping chips, and the chromosome strand (+/−) that was used for either is unknown, then it is not possible to pair up the alleles of ambiguous SNPs (i.e., those with complementary alleles, either C/G or A/T SNPs) across the data sets, because it will be unknown whether the base and target data are referring to the same allele or not. While allele frequencies could be used to infer which alleles are on the same strand, the accuracy of this could be low for SNPs with MAF close to $0.5$ or when the base and target data are from different populations. Therefore, we recommend removing all ambiguous/palindromic SNPs to avoid introducing this potential source of systematic error when populations do not match between the training GWAS and your target data, or when the effect allele frequency is not provided in the downloaded score file.
 ```{r,eval=F}
@@ -38,6 +39,11 @@ in.dir = "/standard/cobi8302/PRS_calculation/"
 out.dir = "your-own-directory"  #Please set up your own directory for analysis results
 pgs_weights <- fread(paste0(in.dir,"PGS000327_hmPOS_GRCh38.txt.gz"), header = T)
 head(pgs_weights)
+
+# Change all alleles to upper case for easy comparison
+pgs_weights$effect_allele <- toupper(pgs_weights$effect_allele)
+pgs_weights$other_allele <- toupper(pgs_weights$other_allele)
+
 #remove ambiguous snps due to the effect allele frequencies not provided in the score file
 rm_id=which( (pgs_weights$effect_allele=="A" & pgs_weights$other_allele=="T") |
                (pgs_weights$effect_allele=="T" & pgs_weights$other_allele=="A") |
@@ -53,6 +59,7 @@ pgs_weights=pgs_weights[-which(is.na(pgs_weights$hm_pos)),]
 ### Standard GWAS QC (will do this step when calculating the PRS)
 We recommend the following QC criteria for standard analyses: genotyping rate $>0.99$, sample missingness $<0.02$, Hardy-Weinberg Equilibrium P $>1 × 10^{−6}$, heterozygosity within 3 standard deviations of the mean, minor allele frequency (MAF) $>0.01$ (MAF $>0.05$ if target sample $N <1000$) and imputation ‘info score’ $>0.8$. If both the base and target data are large (e.g., $N >50\,000$), then SNPs with MAF $<0.01$ may be included, in which case we recommend a minor allele count $>100$ in the base and target data to ensure the integrity of normality assumptions implicit in association testing and LD calculation. 
 
+
 ### Mismatching SNPs and/or Duplicate SNPs
 SNPs that have mismatching alleles reported in the base and target data are either resolvable by strand-flipping the alleles to their complementary alleles in, for example, the target data, such as for a SNP with A/C in the base data and G/T in the target, or non-resolvable, such as for a SNP with C/G in the base and C/T in the target. Most polygenic score software programs perform strand-flipping automatically for SNPs that are resolvable and remove non-resolvable mismatching SNPs. Ensure that there are no duplicated SNPs in either the base or target data.
 ```{R,eval=F}
@@ -61,8 +68,6 @@ bim <- read.table(paste0(in.dir,"data/merged.bim"))
 colnames(bim) <- c("hm_chr", "snp", "CM", "hm_pos", "B.A1", "B.A2")
 
 # Change all alleles to upper case for easy comparison
-pgs_weights$effect_allele <- toupper(pgs_weights$effect_allele)
-pgs_weights$other_allele <- toupper(pgs_weights$other_allele)
 bim$B.A1 <- toupper(bim$B.A1)
 bim$B.A2 <- toupper(bim$B.A2)
 
@@ -103,7 +108,6 @@ info_score=info_final[,c("snp","effect_allele","effect_weight")]
 dim(info_score)
 
 ```
-
 
 
 ### Save the score file for PLINK
