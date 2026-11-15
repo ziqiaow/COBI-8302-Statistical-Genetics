@@ -148,7 +148,7 @@ Second, install PRScs into your computer or computing server [Instructions](http
 ## Prepare the summary statistics for PRScs
 ```{R,eval = F}
 library(data.table)
-adhd = fread("ADHD2022_iPSYCH_deCODE_PGC.meta.gz")
+adhd = fread("ADHD2022_iPSYCH_deCODE_PGC.meta.gz") #This was downloaded from GWAS Catalog
 
 #create input for PRScs
 sum_stats = adhd[,c("SNP","A1","A2","OR","P")]
