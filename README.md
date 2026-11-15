@@ -123,13 +123,14 @@ This will be done in PLINK2.0
 --maf 0.01 \
 --hwe 1e-6 \
 --geno 0.01 \
---mind 0.01 \
+--mind 0.05 \ 
 --bfile /standard/cobi8302/PRS_calculation/data/merged  \
 --score /standard/cobi8302/PRS_calculation/results/asd_score.txt 1 2 3 list-variants cols=+scoresums,-scoreavgs \
 --out /standard/cobi8302/PRS_calculation/results/ASD_score_final
 
-```
 
+```
+Note that --mind 0.05 is a relatively large threshold, as we are only using 663 individuals, which is a small set of data
 
 ## Visualize the PRS
 ```{R}
