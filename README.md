@@ -172,7 +172,7 @@ First download the reference LD panels. Specify your paths of the data, genotype
 python PRScs.py --ref_dir=PATH_TO_REFERENCE --bim_prefix=VALIDATION_BIM_PREFIX --sst_file=SUM_STATS_FILE --n_gwas=GWAS_SAMPLE_SIZE --out_dir=OUTPUT_DIR [--a=PARAM_A --b=PARAM_B --phi=PARAM_PHI --n_iter=MCMC_ITERATIONS --n_burnin=MCMC_BURNIN --thin=MCMC_THINNING_FACTOR --chrom=CHROM --beta_std=BETA_STD --write_psi=WRITE_PSI --write_pst=WRITE_POSTERIOR_SAMPLES --seed=SEED]
 
 
-python PRScs.py --ref_dir=/dcs04/nilanjan/data/zwang/phewas/LD/ldblk_ukbb_eur --bim_prefix=/dcs04/nilanjan/data/zwang/phewas/plink/data/mergedplink --sst_file=/dcs04/nilanjan/data/zwang/PRS_adhd/prscs_results/sum_stats.txt --n_gwas=128214 --out_dir=/dcs04/nilanjan/data/zwang/PRS_adhd/prscs_results/eur
+python PRScs.py --ref_dir=/standard/cobi8302/PRS_calculation/PRScs/data/ldblk_ukbb_eur --bim_prefix=/standard/cobi8302/PRS_calculation/PRScs/data/mergedplink --sst_file=/standard/cobi8302/PRS_calculation/PRScs/data/sum_stats.txt --n_gwas=128214 --out_dir=/standard/cobi8302/PRS_calculation/PRScs/results/eur
 ```
 
 
@@ -180,16 +180,16 @@ python PRScs.py --ref_dir=/dcs04/nilanjan/data/zwang/phewas/LD/ldblk_ukbb_eur --
 ## Then prepare data for input in PLINK
 Combine the scoring files from 22 chromosomes to 1 file, save to rsid, effect allele, effect size.
 ```{R, eval=F}
-score_file = fread("/dcs04/nilanjan/data/zwang/PRS_adhd/prscs_results/eur_pst_eff_a1_b0.5_phiauto_chr1.txt",header = F)
+score_file = fread("/standard/cobi8302/PRS_calculation/PRScs/results/eur_pst_eff_a1_b0.5_phiauto_chr1.txt",header = F)
 score_file = data.frame(score_file)
 score_file = score_file[,c(2,4,6)]
 for(i in 2:22){
-  tmp = fread(paste0("/dcs04/nilanjan/data/zwang/PRS_adhd/prscs_results/eur_pst_eff_a1_b0.5_phiauto_chr",i,".txt"),header = F)
+  tmp = fread(paste0("/standard/cobi8302/PRS_calculation/PRScs/results/eur_pst_eff_a1_b0.5_phiauto_chr",i,".txt"),header = F)
   tmp = data.frame(tmp)
   tmp = tmp[,c(2,4,6)]
   score_file = rbind(score_file,tmp)
 }
-write.table(score_file,file="info_score.txt",col.names = F,row.names = F,quote = F)
+write.table(score_file,file="/standard/cobi8302/PRS_calculation/PRScs/results/info_score.txt",col.names = F,row.names = F,quote = F)
 
 ```
 
