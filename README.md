@@ -9,6 +9,7 @@ This is the course materials for Session 19: building polygenic risk scores for 
     - [Standard GWAS QC (will do this step when calculating the PRS)](#standard-gwas-qc-will-do-this-step-when-calculating-the-prs)
     - [Mismatching SNPs and/or Duplicate SNPs](#mismatching-snps-andor-duplicate-snps)
     - [Save the score file for PLINK](#save-the-score-file-for-plink)
+    - [Additional note when palindromic SNPs are able to be sorted out](#additional-note-when-palindromic-snps-are-able-to-be-sorted-out)
   - [Calculation of PRS](#calculation-of-prs)
   - [Visualize the PRS](#visualize-the-prs)
 - [Train PRS models using GWAS summary statistics](#train-prs-models-using-gwas-summary-statistics)
