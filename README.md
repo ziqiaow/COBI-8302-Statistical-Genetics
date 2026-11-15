@@ -35,6 +35,7 @@ Here, we use the HGDP project data. Our data version is HG38. If the base and ta
 ```{r,eval=F}
 library(data.table)
 in.dir = "/standard/cobi8302/PRS_calculation/"
+out.dir = "your-own-directory"  #Please set up your own directory for analysis results
 pgs_weights <- fread(paste0(in.dir,"PGS000327_hmPOS_GRCh38.txt.gz"), header = T)
 head(pgs_weights)
 #remove ambiguous snps
@@ -125,17 +126,16 @@ This will be done in PLINK2.0
 --geno 0.01 \
 --mind 0.05 \ 
 --bfile /standard/cobi8302/PRS_calculation/data/merged  \
---score /standard/cobi8302/PRS_calculation/results/asd_score.txt 1 2 3 list-variants cols=+scoresums,-scoreavgs \
---out /standard/cobi8302/PRS_calculation/results/ASD_score_final
-
+--score ${RESULTS_DIR}/asd_score.txt 1 2 3 list-variants cols=+scoresums,-scoreavgs \
+--out ${RESULTS_DIR}/ASD_score_final
 
 ```
-Note that --mind 0.05 is a relatively lenient threshold, as we are only using 663 individuals, which is a small set of data
+Please set up your own directory for results, need to fill in ${RESULTS_DIR}. Note that --mind 0.05 is a relatively lenient threshold, as we are only using 663 individuals, which is a small set of data
 
 ## Visualize the PRS
 ```{R}
 library(data.table)
-prs_asd <- fread("ASD_score_final.sscore", header = T)
+prs_asd <- fread(paste0(out.dir,"ASD_score_final.sscore"), header = T)
 hist(prs_asd$SCORE1_SUM, col = "blue", breaks = 20, xlab = "PRS value", main = "Histogram of Autism Spectrum Disorder PRS in 1000G+HGDP EUR", freq = F)
 
 ```
