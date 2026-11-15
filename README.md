@@ -117,6 +117,51 @@ write.table(info_score,file=paste0(out.dir,"asd_score.txt"),row.names = F,col.na
 ```
 Other software tools for data harmonization: [TwoSampleMR](https://mrcieu.github.io/TwoSampleMR/articles/introduction.html)
 
+### Additional note when palindromic SNPs are able to be sorted out
+Suppose the EAF information is available and the training and target populations match, we can sort out and include palindromic SNPs in our PRS calculations
+```
+#Additional note: Suppose we have the EAF information in the PGS weights file for palindromic SNPs
+info <- merge(bim, pgs_weights, by = c("hm_chr", "hm_pos"))
+# Identify palindromic allele pairs
+info$ambiguous <- (info$effect_allele == "A" & info$other_allele == "T") | 
+  (info$effect_allele == "T" & info$other_allele == "A") |
+  (info$effect_allele == "C" & info$other_allele == "G") | 
+  (info$effect_allele == "G" & info$other_allele == "C")
+
+# 2. Check that alleles belong to the same pair (prevents multi-allelic A/T vs C/G collisions)
+same_pair <- ((info$B.A1 == info$effect_allele) | (info$B.A1 == info$other_allele)) & 
+  ((info$B.A2 == info$effect_allele) | (info$B.A2 == info$other_allele))
+
+# 3. Palindromic SNPs: frequency check + allele pair check, EAF is loaded from the PGS weight file downloaded online, ALT_FREQ is loaded from allele frequency counts for B.A1
+id_match <- which(info$ambiguous & same_pair & 
+                    ((info$EAF < 0.35 & info$ALT_FREQ < 0.35) | (info$EAF > 0.65 & info$ALT_FREQ > 0.65)))
+
+id_flip  <- which(info$ambiguous & same_pair & 
+                    ((info$EAF < 0.35 & info$ALT_FREQ > 0.65) | (info$EAF > 0.65 & info$ALT_FREQ < 0.35)))
+
+# Harmonize palindromic effect_allele to match genotype file coding
+info$effect_allele[id_match] <- info$B.A1[id_match]
+info$effect_allele[id_flip]  <- info$B.A2[id_flip]
+
+# 4. Non-ambiguous SNPs: direct match vs. strand complement
+id_keep <- which(!info$ambiguous & same_pair)
+
+id_complement <- which(!info$ambiguous & 
+                         ((info$B.A1 == info$effect_allele.complement) | (info$B.A1 == info$other_allele.complement)) & 
+                         ((info$B.A2 == info$effect_allele.complement) | (info$B.A2 == info$other_allele.complement)))
+
+# Update complementary alleles
+info$effect_allele[id_complement] <- info$effect_allele.complement[id_complement]
+info$other_allele[id_complement]  <- info$other_allele.complement[id_complement]
+
+# 5. final output (sorted to preserve chromosome order)
+keep_idx <- sort(unique(c(id_keep, id_complement, id_match, id_flip)))
+info_final <- info[keep_idx, ]
+info_score=info_final[,c("snp","effect_allele","effect_weight")]
+dim(info_score)
+```
+
+
 ## Calculation of PRS
 This will be done in PLINK2.0
 ```{R, echo=T,eval=F}
