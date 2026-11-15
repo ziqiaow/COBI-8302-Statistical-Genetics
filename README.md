@@ -34,15 +34,18 @@ Pay attention to the Genome build (HG19 or HG38) of your own data. As an example
 Here, we use the HGDP project data. Our data version is HG38. If the base and target data were generated using different genotyping chips, and the chromosome strand (+/−) that was used for either is unknown, then it is not possible to pair up the alleles of ambiguous SNPs (i.e., those with complementary alleles, either C/G or A/T SNPs) across the data sets, because it will be unknown whether the base and target data are referring to the same allele or not. While allele frequencies could be used to infer which alleles are on the same strand, the accuracy of this could be low for SNPs with MAF close to $50\%$ or when the base and target data are from different populations. Therefore, we recommend removing all ambiguous/palindromic SNPs to avoid introducing this potential source of systematic error.
 ```{r,eval=F}
 library(data.table)
-pgs_weights <- fread("PGS000327_hmPOS_GRCh38.txt.gz", header = T)
+in.dir = "/standard/cobi8302/PRS_calculation/"
+pgs_weights <- fread(paste0(in.dir,"PGS000327_hmPOS_GRCh38.txt.gz"), header = T)
 head(pgs_weights)
 #remove ambiguous snps
 rm_id=which( (pgs_weights$effect_allele=="A" & pgs_weights$other_allele=="T") |
                (pgs_weights$effect_allele=="T" & pgs_weights$other_allele=="A") |
                (pgs_weights$effect_allele=="C" & pgs_weights$other_allele=="G") |
                (pgs_weights$effect_allele=="G" & pgs_weights$other_allele=="C") )
-rm_id
-#pgs_weights=pgs_weights[-rm_id,]
+length(rm_id)
+pgs_weights=pgs_weights[-rm_id,]
+#Note that this score file has some NA values in the HG38 positions, we remove those entries
+pgs_weights=pgs_weights[-which(is.na(pgs_weights$hm_pos)),]
 
 ```
 
@@ -53,7 +56,7 @@ We recommend the following QC criteria for standard analyses: genotyping rate $>
 SNPs that have mismatching alleles reported in the base and target data are either resolvable by strand-flipping the alleles to their complementary alleles in, for example, the target data, such as for a SNP with A/C in the base data and G/T in the target, or non-resolvable, such as for a SNP with C/G in the base and C/T in the target. Most polygenic score software programs perform strand-flipping automatically for SNPs that are resolvable and remove non-resolvable mismatching SNPs. Ensure that there are no duplicated SNPs in either the base or target data.
 ```{R,eval=F}
 #Identify SNPs that require strand flipping
-bim <- read.table("mergedplink.bim")
+bim <- read.table(paste0(in.dir,"data/merged.bim"))
 colnames(bim) <- c("hm_chr", "snp", "CM", "hm_pos", "B.A1", "B.A2")
 
 # Change all alleles to upper case for easy comparison
@@ -69,35 +72,33 @@ snp_clean <- pgs_weights %>%
 
 info <- merge(bim, pgs_weights, by = c("hm_chr", "hm_pos"))
 
-id=which( ((info$B.A1 == info$effect_allele) | (info$B.A1 == info$other_allele)) & ((info$B.A2 == info$effect_allele) | (info$B.A2 == info$other_allele)) )
-length(id)
-#since all alleles were match in our example data, we can go ahead and use this set of info scores.
+id_keep=which( ((info$B.A1 == info$effect_allele) | (info$B.A1 == info$other_allele)) & ((info$B.A2 == info$effect_allele) | (info$B.A2 == info$other_allele)) )
+length(id_keep)
 
-#otherwise, let's do some strand flipping
-# Function for finding the complementary allele
-# complement <- function(x) {
-#   switch (
-#     x,
-#     "A" = "T",
-#     "C" = "G",
-#     "T" = "A",
-#     "G" = "C",
-#     return(NA)
-#   )
-# }
-# 
-# 
-# # Identify SNPs that are complementary between base and target
-# info$effect_allele.complement <- sapply(info$effect_allele, complement)
-# info$other_allele.complement <- sapply(info$other_allele, complement)
-# id_complement = which( ((info$B.A1 == info$effect_allele.complement) | (info$B.A1 == info$other_allele.complement)) & ((info$B.A2 == info$effect_allele.complement) | (info$B.A2 == info$other_allele.complement)) )
-# # Update the complementary alleles in the info file
-# # This allow us to match the allele in subsequent analysis
-# info$effect_allele[id_complement] <- info$effect_allele.complement[id_complement]
-# info$other_allele[id_complement] <- info$other_allele.complement[id_complement]
+#let's do some strand flipping
+#Function for finding the complementary allele
+complement <- function(x) {
+  switch (
+    x,
+    "A" = "T",
+    "C" = "G",
+    "T" = "A",
+    "G" = "C",
+    return(NA)
+  )
+}
 
+# Identify SNPs that are complementary between base and target
+info$effect_allele.complement <- sapply(info$effect_allele, complement)
+info$other_allele.complement <- sapply(info$other_allele, complement)
+id_complement = which( ((info$B.A1 == info$effect_allele.complement) | (info$B.A1 == info$other_allele.complement)) & ((info$B.A2 == info$effect_allele.complement) | (info$B.A2 == info$other_allele.complement)) )
+# Update the complementary alleles in the info file
+# This allow us to match the allele in subsequent analysis
+info$effect_allele[id_complement] <- info$effect_allele.complement[id_complement]
+info$other_allele[id_complement] <- info$other_allele.complement[id_complement]
 
-info_score=info[,c("snp","effect_allele","effect_weight")]
+info_final = info[c(id_keep,id_complement),]
+info_score=info_final[,c("snp","effect_allele","effect_weight")]
 dim(info_score)
 
 ```
@@ -107,8 +108,7 @@ dim(info_score)
 ### Save the score file for PLINK
 ```{R,eval=F}
 #save this file for calculating scores in plink
-write.table(info_score,file="bmi_score.txt",row.names = F,col.names = F,quote = F)
-
+write.table(info_score,file=paste0(out.dir,"asd_score.txt"),row.names = F,col.names = F,quote = F)
 ```
 Other software tools for data harmonization: [TwoSampleMR](https://mrcieu.github.io/TwoSampleMR/articles/introduction.html)
 
@@ -116,7 +116,7 @@ Other software tools for data harmonization: [TwoSampleMR](https://mrcieu.github
 This will be done in PLINK2.0
 ```{R, echo=T,eval=F}
 ####################
-/dcs04/nilanjan/data/zwang/tools/20240105/plink2 \
+/standard/cobi8302/PRS_calculation/tools/plink2 \
 --threads 5 \
 --rm-dup exclude-all \
 --mach-r2-filter \
@@ -124,12 +124,9 @@ This will be done in PLINK2.0
 --hwe 1e-6 \
 --geno 0.01 \
 --mind 0.01 \
---bfile /dcs04/nilanjan/data/zwang/1000G/EUR/data/mergedplink \
---score /dcs04/nilanjan/data/zwang/PGScalculation/plink/bmi_score.txt cols=+scoresums,-scoreavgs \
---score-col-nums 3 \
---out /dcs04/nilanjan/data/zwang/PGScalculation/example/bmi_prive_prs
-
-#https://zzz.bwh.harvard.edu/plink/profile.shtml
+--bfile /standard/cobi8302/PRS_calculation/data/merged  \
+--score /standard/cobi8302/PRS_calculation/results/asd_score.txt 1 2 3 list-variants cols=+scoresums,-scoreavgs \
+--out /standard/cobi8302/PRS_calculation/results/ASD_score_final
 
 ```
 
@@ -137,8 +134,8 @@ This will be done in PLINK2.0
 ## Visualize the PRS
 ```{R}
 library(data.table)
-prs_bmi <- fread("bmi_prive_prs.sscore", header = T)
-hist(prs_bmi$SCORE1_SUM, col = "blue", breaks = 20, xlab = "PRS value", main = "Histogram of BMI PRS in 1000G EUR", freq = F)
+prs_asd <- fread("ASD_score_final.sscore", header = T)
+hist(prs_asd$SCORE1_SUM, col = "blue", breaks = 20, xlab = "PRS value", main = "Histogram of Autism Spectrum Disorder PRS in 1000G+HGDP EUR", freq = F)
 
 ```
 
