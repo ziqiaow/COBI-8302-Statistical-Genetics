@@ -130,7 +130,7 @@ This will be done in PLINK2.0
 
 
 ```
-Note that --mind 0.05 is a relatively large threshold, as we are only using 663 individuals, which is a small set of data
+Note that --mind 0.05 is a relatively lenient threshold, as we are only using 663 individuals, which is a small set of data
 
 ## Visualize the PRS
 ```{R}
