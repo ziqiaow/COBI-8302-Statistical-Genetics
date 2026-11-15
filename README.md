@@ -142,7 +142,7 @@ hist(prs_asd$SCORE1_SUM, col = "blue", breaks = 20, xlab = "PRS value", main = "
 
 
 # Train PRS models using GWAS summary statistics
-First, download GWAS summary statistics from [GWASCatalog](https://www.ebi.ac.uk/gwas/). We use the example dataset for ADHD (available for download [here](https://github.com/ziqiaow/PRS-tutorial)).
+First, download GWAS summary statistics from [GWASCatalog](https://www.ebi.ac.uk/gwas/). We use the example dataset for ADHD (available for download [download](https://livejohnshopkins-my.sharepoint.com/:t:/g/personal/zwang389_jh_edu/EaNT0Lh2rj9FjIsPmjlEhbYBr58WxfokseOIP9uqegZu3g?e=WaJBfi)).
 Second, install PRScs into your computer or computing server [Instructions](https://github.com/getian107/PRScs).
 
 ## Prepare the summary statistics for PRScs
