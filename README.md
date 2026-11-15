@@ -31,14 +31,14 @@ Pay attention to the Genome build (HG19 or HG38) of your own data. As an example
 
 ## Data cleaning
 ### Ambiguous SNPs
-Here, we use the HGDP project data. Our data version is HG38. If the base and target data were generated using different genotyping chips, and the chromosome strand (+/−) that was used for either is unknown, then it is not possible to pair up the alleles of ambiguous SNPs (i.e., those with complementary alleles, either C/G or A/T SNPs) across the data sets, because it will be unknown whether the base and target data are referring to the same allele or not. While allele frequencies could be used to infer which alleles are on the same strand, the accuracy of this could be low for SNPs with MAF close to $50\%$ or when the base and target data are from different populations. Therefore, we recommend removing all ambiguous/palindromic SNPs to avoid introducing this potential source of systematic error.
+Here, we use the HGDP project data. Our data version is HG38. If the base and target data were generated using different genotyping chips, and the chromosome strand (+/−) that was used for either is unknown, then it is not possible to pair up the alleles of ambiguous SNPs (i.e., those with complementary alleles, either C/G or A/T SNPs) across the data sets, because it will be unknown whether the base and target data are referring to the same allele or not. While allele frequencies could be used to infer which alleles are on the same strand, the accuracy of this could be low for SNPs with MAF close to $0.5$ or when the base and target data are from different populations. Therefore, we recommend removing all ambiguous/palindromic SNPs to avoid introducing this potential source of systematic error when populations do not match between the training GWAS and your target data, or when the effect allele frequency is not provided in the downloaded score file.
 ```{r,eval=F}
 library(data.table)
 in.dir = "/standard/cobi8302/PRS_calculation/"
 out.dir = "your-own-directory"  #Please set up your own directory for analysis results
 pgs_weights <- fread(paste0(in.dir,"PGS000327_hmPOS_GRCh38.txt.gz"), header = T)
 head(pgs_weights)
-#remove ambiguous snps
+#remove ambiguous snps due to the effect allele frequencies not provided in the score file
 rm_id=which( (pgs_weights$effect_allele=="A" & pgs_weights$other_allele=="T") |
                (pgs_weights$effect_allele=="T" & pgs_weights$other_allele=="A") |
                (pgs_weights$effect_allele=="C" & pgs_weights$other_allele=="G") |
